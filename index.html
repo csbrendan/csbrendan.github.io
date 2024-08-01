@@ -1,74 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brendan P. Murphy</title>
     <style>
-        /* CSS styles go here */
         body {
             font-family: Arial, sans-serif;
+            background: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-
-        h1 {
-            font-size: 24px;
+        header, footer {
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
             color: #333;
         }
-
         p {
-            font-size: 16px;
             color: #666;
         }
-
-        /* Define your color scheme here */
-        /* For example: */
-        .primary-color {
-            color: #FF0000; /* Replace with your desired color */
+        ul {
+            list-style-type: none;
+            padding: 0;
         }
-
-        /* Grid-based layout */
-        .container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+        ul li {
+            margin-bottom: 10px;
         }
-
-        /* Style for article links section */
-        .articles {
-            margin-bottom: 20px;
+        a {
+            color: #0077cc;
+            text-decoration: none;
         }
-
-        /* Style for social media links section */
+        a:hover {
+            text-decoration: underline;
+        }
         .social-media {
-            margin-bottom: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .social-media ul {
+            list-style: none;
+            padding: 0;
+        }
+        .social-media li {
+            display: inline;
+            margin: 0 10px;
+        }
+        .research {
+            margin-top: 20px;
+        }
+        .research h2 {
+            font-size: 1.5em;
+        }
+        .research li {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>software 2.0</h1>
-
-    <div class="container">
-        <div class="articles">
-            <h2 class="primary-color">writing</h2>
+    <header>
+        <h1>Welcome to Brendan P. Murphy's Page</h1>
+    </header>
+    <main>
+        <section>
+            <p>👋 Hi, I’m Brendan P. Murphy @csbrendan.</p>
+            <p>👀 I’m pursuing the Artificial Intelligence Graduate Certificate @ Stanford and have taken:</p>
             <ul>
-                <li><a href="https://github.com/csbrendan/cs230">CS230 Deep Learning @ Stanford (2023)</a></li>
-                <li><a href="mit_hack.html">MIT Hacking Medicine (2020)</a></li>
-                <li><a href="enterprise.html">AI & Automation for the Enterprise (2019)</a></li>
-                <!-- Add more article links as needed -->
+                <li>CS230 Deep Learning</li>
+                <li>CS330 Deep Multi-Task and Meta Learning</li>
+                <li>CS224N Natural Language Processing with Deep Learning</li>
+                <li>CS231N Deep Learning for Computer Vision</li>
             </ul>
-        </div>
-
+            <p>📫 How to reach me: <a href="mailto:cs.brendan@gmail.com">cs.brendan@gmail.com</a></p>
+        </section>
         <div class="social-media">
-            <h2 class="primary-color">profile</h2>
+            <h2>Connect with Me</h2>
             <ul>
                 <li><a href="https://www.linkedin.com/in/brendanphilipmurphy/">LinkedIn</a></li>
                 <!-- Add more social media links as needed -->
             </ul>
         </div>
-    </div>
-
-    <!-- Add additional sections or content as necessary -->
-
+        <section class="research">
+            <h2>Research Papers</h2>
+            <ul>
+                <li>
+                    <strong>Efficient Alignment of Medical Language Models using Direct Preference Optimization:</strong> I used LoRA parameter-efficient fine-tuning and quantization with Direct Preference Optimization (DPO) to align BioMistral to specific medical tasks.
+                    <a href="https://github.com/csbrendan/CS224N">View on GitHub</a>
+                </li>
+                <li>
+                    <strong>Optimizing Bias Mitigation in LLMs: A Study of Fine-Tuning Techniques and Augmented Data:</strong> I explored innovative approaches to debiasing language models, particularly focusing on fine-tuning GPT-2 with augmented data.
+                    <a href="https://github.com/csbrendan/CS330">View on GitHub</a>
+                </li>
+                <li>
+                    <strong>Leveraging BYOL for Image Classification in Limited Labeled Medical Domains:</strong> I evaluated the effectiveness of a self-supervised learning method, Bootstrap Your Own Latent (BYOL), across different medical imaging modalities.
+                    <a href="https://github.com/csbrendan/CS230">View on GitHub</a>
+                </li>
+                <li>
+                    <strong>Med-Idefics: A Two-Stage Fine-Tuning Approach for Enhanced Medical Visual Question Answering:</strong> I explored fine-tuning techniques for the IDEFICS 8B open-source multimodal large language model for medical visual question answering (Med-VQA).
+                    <a href="https://github.com/csbrendan/CS231N">View on GitHub</a>
+                </li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Brendan P. Murphy</p>
+    </footer>
 </body>
 </html>
-
