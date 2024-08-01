@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brendan P. Murphy</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -69,7 +70,6 @@
 <body>
     <header>
         <h1>Welcome to Brendan P. Murphy's Page</h1>
-        <p>PhD Candidate | Artificial Intelligence at Stanford</p>
     </header>
     <main>
         <section>
@@ -85,26 +85,40 @@
             <h2>About Brendan Murphy</h2>
             <p>I am Brendan Murphy, a seasoned software engineer with over 20 years of experience, primarily in the financial industry. Throughout my career, I've developed a robust expertise in Python, data science, and machine learning techniques. I am currently finalizing my Artificial Intelligence Graduate Certificate at Stanford University, which has sharpened my skills in machine learning, deep learning, and particularly in natural language processing (NLP).</p>
             <p>My academic journey and practical experience have fueled my interest in the application of AI across various domains, including medicine, finance, and computer vision. My recent projects reflect my commitment to leveraging AI to optimize and innovate within these fields. Notably, my work includes developing enhanced techniques for medical visual question answering and implementing cutting-edge solutions for bias mitigation in language models.</p>
-            <p>Prior to my current academic pursuits, I held the position of VP Development Lead at Bank of America where I led significant infrastructure projects and pioneered conversational AI applications. My role involved transitioning from design to full-scale implementation, showcasing my capability to lead and innovate within the tech space.</p>
+            <p>Prior to my current academic pursuits, I held the position of VP at Bank of America where I led significant infrastructure projects and pioneered conversational AI applications. My role involved transitioning from design to full-scale implementation, showcasing my capability to lead and innovate within the tech space.</p>
         </section>
         
         <section class="research">
             <h2>Research Papers</h2>
             <ul>
-                <li><strong>Efficient Alignment of Medical Language Models:</strong> Utilizing LoRA and DPO for task-specific model alignment. <a href="https://github.com/csbrendan/CS224N">View Project</a></li>
-                <li><strong>Optimizing Bias Mitigation in LLMs:</strong> Exploring fine-tuning techniques with augmented data. <a href="https://github.com/csbrendan/CS330">View Project</a></li>
-                <li><strong>Leveraging BYOL for Medical Image Classification:</strong> Enhancing BYOL with augmentation for medical imaging. <a href="https://github.com/csbrendan/CS230">View Project</a></li>
-                <li><strong>Med-Idefics for Medical VQA:</strong> Two-stage fine-tuning of IDEFICS 8B for medical VQA applications. <a href="https://github.com/csbrendan/CS231N">View Project</a></li>
+                <li>
+                    <strong>Efficient Alignment of Medical Language Models using Direct Preference Optimization:</strong> I used LoRA parameter-efficient fine-tuning and quantization with Direct Preference Optimization (DPO) to align BioMistral to specific medical tasks.
+                    <a href="https://github.com/csbrendan/CS224N" target="_blank">View Project on GitHub</a>
+                </li>
+                <li>
+                    <strong>Optimizing Bias Mitigation in LLMs: A Study of Fine-Tuning Techniques and Augmented Data:</strong> I explored innovative approaches to debiasing language models, particularly focusing on fine-tuning GPT-2 with augmented data. By employing finetuning with anti-stereotype and neutral masking augmented data, and compares the results to in-context learning using similar strategies.
+                    <a href="https://github.com/csbrendan/CS330" target="_blank">View Project on GitHub</a>
+                </li>
+                <li>
+                    <strong>Leveraging BYOL for Image Classification in Limited Labeled Medical Domains:</strong> I evaluated the effectiveness of a self-supervised learning method, Bootstrap Your Own Latent (BYOL), across different medical imaging modalities. I enhanced BYOL with additional augmentation techniques, creating a "BYOL+" model that demonstrated resilience to distribution shifts within the same modality and proficiency in few-shot learning scenarios on the PneumoniaMNIST dataset.
+                    <a href="https://github.com/csbrendan/CS230" target="_blank">View Project on GitHub</a>
+                </li>
+                <li>
+                    <strong>Med-Idefics: A Two-Stage Fine-Tuning Approach for Enhanced Medical Visual Question Answering:</strong> I explored fine-tuning techniques for the IDEFICS 8B open-source multimodal large language model for medical visual question answering (Med-VQA). Adapted IDEFICS 8B to the medical domain using a two-stage fine-tuning approach utilizing the VQA-RAD and ROCO datasets.
+                    <a href="https://github.com/csbrendan/CS231N" target="_blank">View Project on GitHub</a>
+                </li>
             </ul>
         </section>
+
     </main>
     <footer>
         <div class="social-media">
             <a href="https://www.linkedin.com/in/brendanphilipmurphy" target="_blank"><i class="fab fa-linkedin"></i></a>
             <a href="https://github.com/csbrendan" target="_blank"><i class="fab fa-github"></i></a>
-            <a href="https://sigmoid.social/@fullyconnected" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://sigmoid.social/@fullyconnected" target="_blank"><i class="fab fa-mastodon"></i></a>
         </div>
-        <p>&copy; 2024 Brendan P. Murphy | Powered by simple HTML & CSS</p>
+
+        <p>&copy; 2024 Brendan P. Murphy </p>
     </footer>
 </body>
 </html>
