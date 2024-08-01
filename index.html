@@ -4,115 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brendan P. Murphy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
         header, footer {
-            background: #fff;
+            background-color: #fff;
             padding: 20px;
             text-align: center;
         }
         main {
-            max-width: 800px;
+            width: 80%;
             margin: 20px auto;
+            background: #fff;
             padding: 20px;
-            background: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        h1, h2 {
-            color: #333;
+        h1 {
+            color: #000;
         }
-        p {
+        h2 {
+            color: #0275d8;
+        }
+        p, li {
+            font-size: 16px;
+            line-height: 1.6;
             color: #666;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin-bottom: 10px;
-        }
         a {
-            color: #0077cc;
+            color: #0275d8;
             text-decoration: none;
         }
         a:hover {
             text-decoration: underline;
         }
+        .links {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px;
+            background: #0275d8;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .links a:hover {
+            background-color: #025aa5;
+        }
         .social-media {
             text-align: center;
             margin-top: 20px;
         }
-        .social-media ul {
-            list-style: none;
-            padding: 0;
+        .social-media a {
+            margin: 0 5px;
+            color: #333;
         }
-        .social-media li {
-            display: inline;
-            margin: 0 10px;
-        }
-        .research {
-            margin-top: 20px;
-        }
-        .research h2 {
-            font-size: 1.5em;
-        }
-        .research li {
-            margin-bottom: 15px;
+        .social-media i {
+            font-size: 1.5em; /* Larger icon size */
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to Brendan P. Murphy's Page</h1>
+        <h1>Brendan P. Murphy</h1>
+        <p>PhD Candidate | Artificial Intelligence at Stanford</p>
     </header>
     <main>
         <section>
-            <p>👋 Hi, I’m Brendan P. Murphy @csbrendan.</p>
-            <p>👀 I’m pursuing the Artificial Intelligence Graduate Certificate @ Stanford and have taken:</p>
-            <ul>
-                <li>CS230 Deep Learning</li>
-                <li>CS330 Deep Multi-Task and Meta Learning</li>
-                <li>CS224N Natural Language Processing with Deep Learning</li>
-                <li>CS231N Deep Learning for Computer Vision</li>
-            </ul>
-            <p>📫 How to reach me: <a href="mailto:cs.brendan@gmail.com">cs.brendan@gmail.com</a></p>
+            <h2>About Me</h2>
+            <p>👋 Hi, I’m Brendan P. Murphy @csbrendan. I'm currently pursuing an Artificial Intelligence Graduate Certificate at Stanford.</p>
+            <div class="links">
+                <a href="#">Home</a>
+                <a href="#">Projects</a>
+                <a href="#">Publications</a>
+            </div>
         </section>
-        <div class="social-media">
-            <h2>Connect with Me</h2>
-            <ul>
-                <li><a href="https://www.linkedin.com/in/brendanphilipmurphy/">LinkedIn</a></li>
-                <!-- Add more social media links as needed -->
-            </ul>
-        </div>
         <section class="research">
             <h2>Research Papers</h2>
             <ul>
-                <li>
-                    <strong>Efficient Alignment of Medical Language Models using Direct Preference Optimization:</strong> I used LoRA parameter-efficient fine-tuning and quantization with Direct Preference Optimization (DPO) to align BioMistral to specific medical tasks.
-                    <a href="https://github.com/csbrendan/CS224N">View on GitHub</a>
-                </li>
-                <li>
-                    <strong>Optimizing Bias Mitigation in LLMs: A Study of Fine-Tuning Techniques and Augmented Data:</strong> I explored innovative approaches to debiasing language models, particularly focusing on fine-tuning GPT-2 with augmented data.
-                    <a href="https://github.com/csbrendan/CS330">View on GitHub</a>
-                </li>
-                <li>
-                    <strong>Leveraging BYOL for Image Classification in Limited Labeled Medical Domains:</strong> I evaluated the effectiveness of a self-supervised learning method, Bootstrap Your Own Latent (BYOL), across different medical imaging modalities.
-                    <a href="https://github.com/csbrendan/CS230">View on GitHub</a>
-                </li>
-                <li>
-                    <strong>Med-Idefics: A Two-Stage Fine-Tuning Approach for Enhanced Medical Visual Question Answering:</strong> I explored fine-tuning techniques for the IDEFICS 8B open-source multimodal large language model for medical visual question answering (Med-VQA).
-                    <a href="https://github.com/csbrendan/CS231N">View on GitHub</a>
-                </li>
+                <li><strong>Efficient Alignment of Medical Language Models:</strong> Utilizing LoRA and DPO for task-specific model alignment. <a href="https://github.com/csbrendan/CS224N">View Project</a></li>
+                <li><strong>Optimizing Bias Mitigation in LLMs:</strong> Exploring fine-tuning techniques with augmented data. <a href="https://github.com/csbrendan/CS330">View Project</a></li>
+                <li><strong>Leveraging BYOL for Medical Image Classification:</strong> Enhancing BYOL with augmentation for medical imaging. <a href="https://github.com/csbrendan/CS230">View Project</a></li>
+                <li><strong>Med-Idefics for Medical VQA:</strong> Two-stage fine-tuning of IDEFICS 8B for medical VQA applications. <a href="https://github.com/csbrendan/CS231N">View Project</a></li>
             </ul>
         </section>
     </main>
     <footer>
-        <p>&copy; 2024 Brendan P. Murphy</p>
+        <div class="social-media">
+            <a href="https://www.linkedin.com/in/brendanphilipmurphy" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/csbrendan" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://twitter.com/csbrendan" target="_blank"><i class="fab fa-twitter"></i></a>
+        </div>
+        <p>&copy; 2024 Brendan P. Murphy | Powered by simple HTML & CSS</p>
     </footer>
 </body>
 </html>
