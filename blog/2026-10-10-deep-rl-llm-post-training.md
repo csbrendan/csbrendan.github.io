@@ -1,55 +1,317 @@
-# Deep RL, Reappearing Inside LLM Post-Training
+# From Deep RL to LLM Post-Training: Lessons from My First Foray
 
-A useful way to understand modern LLM post-training is to stop thinking of it as a completely new field. Under the surface, many of the core ideas are familiar deep reinforcement learning ideas, translated from robots and control problems into language generation. The details are different, but the logic is often the same: define what counts as good behavior, estimate it from limited feedback, and update the policy so that good behavior becomes more likely.
+I've been fine-tuning large language models for years, using techniques such as supervised fine-tuning (SFT), preference optimization, and Direct Preference Optimization (DPO). But recently, I've been making my first real foray into reinforcement learning (RL) for LLM post-training, particularly the newer techniques used to improve reasoning and agentic behavior.
 
-That framing showed up clearly across the two guest lectures on RL for LLMs and RL for reasoning. One lecture focused on preference optimization for assistant-style behavior. The other focused on reasoning, especially math-style problems with verifiable answers. Together they outlined a fairly coherent picture of where deep RL has entered the LLM stack.
+What has made this journey especially interesting is that many of the ideas now driving LLM post-training are closely related to concepts I first encountered studying deep reinforcement learning: exploration, reward design, policy optimization, credit assignment, and the fundamental difference between imitating successful behavior and learning through experience.
 
-The starting point is supervised imitation, not RL. Large language models are first pretrained with next-token prediction, which gives them broad world knowledge, syntax, and pattern recognition. But pretraining alone does not produce a useful assistant. The first post-training step is usually instruction fine-tuning, which is essentially behavior cloning for language. A model is shown prompts and target responses, and it is trained to imitate the desired answer style. This works well for getting the model to follow format, respond helpfully, and act more like an assistant instead of a raw text completer.
+The algorithms and infrastructure have evolved considerably, but the underlying questions are surprisingly familiar.
 
-But imitation has the same limitation in language that it has elsewhere: it can only copy what is demonstrated. That becomes a problem when there is no single correct answer, when human-written targets are expensive, or when the model is already capable of producing responses that are better than the labels available for training. At that point, post-training starts to look more like reinforcement learning.
+## Supervised Learning Is Still Imitation
 
-That is where RLHF, or reinforcement learning from human feedback, comes in. Instead of asking humans to write the one perfect answer, the model generates multiple answers and humans say which one they prefer. This is a more natural kind of supervision because ranking is often easier than generation. The resulting pairwise comparisons are then used to train a reward model, a learned scoring function that predicts which outputs humans would prefer. Once that reward model exists, the language model can be optimized against it using RL.
+One of the most useful ways to think about supervised fine-tuning is as behavior cloning.
 
-Conceptually, this is a familiar move from deep RL: when the true objective is hard to write down directly, learn a proxy reward from feedback and optimize that. In the LLM case, the proxy is not hand-coded like a robotics reward, but learned from preference data. The policy is the language model itself, and the optimization loop encourages generations that the reward model scores highly.
+In traditional reinforcement learning, behavior cloning involves training a policy to imitate demonstrations from an expert. Rather than discovering a strategy through interaction with an environment, the model learns to reproduce actions that appear in a dataset.
 
-This is also where one of the classic deep RL problems shows up again: reward hacking. If the model is optimized too aggressively against a learned reward model, it can find outputs that score well according to the proxy but are not actually what humans want. This is the language-model version of optimizing against an imperfect reward function in RL and getting strange behavior. The lectures emphasized that this is not a side issue. It is one of the central limitations of current post-training.
+SFT works in much the same way for language models.
 
-To keep the policy from drifting too far while optimizing preferences, RLHF often uses a KL penalty. The idea is simple: reward the model for producing higher-preference outputs, but penalize it for moving too far away from the original reference model. That is very much in the spirit of constrained policy optimization in RL. The update is not allowed to wander freely. It has to improve while staying anchored to behavior that is already reasonable.
+We provide examples of desired inputs and outputs, and the model learns to assign higher probability to the demonstrated responses.
 
-From there, the next step in the story is DPO, or direct preference optimization. DPO is important because it takes the RLHF pipeline and simplifies it. Instead of explicitly training a reward model and then running a separate RL loop, DPO shows that preference optimization can be written as a direct classification-style objective on preferred versus rejected outputs. In practice, that makes the pipeline much cheaper and easier to run.
+This approach can be extraordinarily effective, particularly when the task is well-defined and the demonstrations are high quality.
 
-The deeper reason DPO matters is that it reflects a broader RL theme: sometimes the main benefit of RL is not the full online loop, but the policy improvement principle underneath it. If that principle can be expressed directly as a supervised-style loss, then a lot of the engineering burden disappears. DPO still comes from the logic of RL, especially KL-constrained reward maximization, but packages it into something simpler.
+In fact, one of my first research projects involving clinical prescribing decisions illustrated just how far supervised learning alone can take us.
 
-So far, this is the assistant-tuning side of the story: instruction tuning, preference data, reward models, RLHF, DPO, KL regularization. That is the side most associated with alignment, helpfulness, harmlessness, and dialogue quality.
+In that project, I was investigating whether reinforcement learning could improve a language model's ability to make safe, guideline-concordant prescription decisions. The initial plan was to establish a supervised baseline and then use reinforcement learning with verifiable rewards to improve clinical decision-making.
 
-The reasoning side is where the connection to deep RL becomes even more explicit.
+But after fine-tuning and evaluating the supervised model, an important result emerged: SFT had already captured much of the performance available under our evaluation framework.
 
-When a model solves a math or coding problem, it can be viewed as operating in a sequential decision process. The prompt is the initial state, each generated step is an action, and the final answer determines the reward. In many reasoning benchmarks the reward is sparse: the model gets credit only if the final answer is correct. This is a classic sparse-reward RL setting, just expressed in tokens instead of motor torques.
+We could not demonstrate sufficient remaining headroom to justify the additional complexity of RL.
 
-That sparse-reward framing immediately brings in a set of familiar RL questions. How does the model assign credit to intermediate steps when only the final answer is scored? How does it avoid learning from lucky but flawed solutions? How does it improve data efficiency when high-quality reasoning traces are limited?
+That was a useful lesson.
 
-One early answer is rejection fine-tuning. The idea is to sample many solutions from the current model, keep only the ones that end in the correct answer, and then fine-tune on those. This resembles policy improvement through filtered imitation: generate behavior from the current policy, retain successful trajectories, and imitate them. It is simple and often surprisingly effective.
+Before investing in reinforcement learning, we need to establish that there is something meaningful left for the policy to discover.
 
-But that method also has a familiar weakness. If a sampled solution happens to reach the correct answer despite containing weak or spurious intermediate steps, then training on the full trace can reinforce bad reasoning habits. In RL language, the problem is poor credit assignment. A final success signal is not enough to tell which parts of the trajectory were actually useful.
+If supervised learning already produces strong performance on the task, adding RL does not automatically make the system better.
 
-That is why more advanced reasoning methods start to look like advantage-based or value-based RL. Instead of only asking whether an entire solution was correct, they try to estimate how valuable a partial solution prefix is. One way to do this is through rollouts from intermediate states: keep the prefix fixed, complete the rest of the solution multiple times, and estimate how often that prefix leads to eventual success. This gives a step-level notion of value. From there, one can define something like an advantage, measuring whether a particular step improved or worsened the chances of success.
+It may simply introduce optimization complexity, additional compute requirements, and opportunities for reward exploitation.
 
-Once those step-level signals exist, they can be used in several ways. They can filter out bad steps. They can weight imitation updates toward more useful reasoning actions. Or they can be turned into dense rewards for online RL. This is closely related to methods like advantage-weighted regression and actor-critic style learning, even if the implementation details in language models look different.
+Sometimes the correct research conclusion is that RL is not yet warranted.
 
-Another important bridge from deep RL is the role of offline RL ideas. Much of LLM post-training does not happen in a pure online interaction loop. It often starts from static datasets of prompts, responses, rankings, or reasoning traces. That makes the setting resemble offline RL, where the learned policy must improve using a fixed batch of data without drifting into unsupported behavior.
+That experience helped shape how I approached my subsequent experiments.
 
-This is why ideas like conservative updates and staying close to data support matter so much. The same general concern appears in both offline RL and preference tuning: when the policy moves too far beyond the distribution where its value estimates or preference signals are reliable, optimization becomes brittle. DPO, KL regularization, and reference-model anchoring can all be seen as practical responses to this problem.
+## Where Reinforcement Learning Becomes Interesting
 
-The reasoning lecture also emphasized the growing importance of online RL again, especially in models trained to "think" for longer. Once the base model is good enough to generate meaningful multi-step reasoning traces, RL can amplify that capability. The model can sample long solutions, receive verifiable rewards such as exact answer correctness, and gradually learn better search behavior, better self-correction, and better verification habits. The interesting change is not that RL became fundamentally new. It is that the base models became strong enough for RL to improve them in more visible ways.
+The limitation of behavior cloning becomes more apparent when the correct behavior cannot be completely specified through static examples.
 
-This leads to one of the most important current trends: reasoning models are not just producing longer outputs, they are learning more structured internal procedures. Some generate an answer, check it, backtrack, revise, and continue. In a control problem, this would look like a richer action space or a more expressive policy class. In language, it appears as longer chains of reasoning and more deliberate search. The underlying lesson is that better base policies make RL more useful.
+This is especially true for multi-step reasoning and agentic workflows.
 
-A final theme that emerged from both lectures is that post-training is still constrained by the quality of the feedback signal. Human preferences are noisy. Pairwise rankings throw away information about strength of preference. Reward models can be exploited. Binary correctness is easy to verify for math, but much harder for open-ended reasoning or creativity. In other words, the bottleneck is often not optimization alone. It is supervision.
+Consider an agent that must gather information, decide whether it has enough evidence, ask clarifying questions, use tools, and eventually commit to a decision.
 
-That may be the clearest deep RL lesson now showing up in LLM work. Performance depends not only on the algorithm, but on the structure of the feedback. Dense rewards are easier than sparse ones. Verifiable objectives are easier than fuzzy ones. Good data collection matters. Credit assignment matters. Distribution shift matters. Reward hacking matters. These were already central RL ideas before LLM post-training became the focus.
+The appropriate next action depends on what happened earlier in the interaction.
 
-So which deep RL methods seem most relevant to post-training LLMs right now?
+A successful demonstration can show the agent what to do in a particular situation, but it cannot necessarily teach the agent how to recover from unfamiliar states or determine which actions will produce better outcomes.
 
-At the assistant layer, the main transfers are behavior cloning, reward modeling, KL-constrained policy optimization, and direct preference optimization. At the reasoning layer, the most important transfers are sparse-reward RL, rollout-based credit assignment, value and advantage estimation, filtered or rejection-based policy improvement, and online RL with verifiable rewards. Around all of it sits an offline-RL style concern about staying close to the support of good data.
+This is where reinforcement learning becomes particularly interesting.
 
-That is why the recent wave of post-training methods feels less mysterious when viewed through a deep RL lens. The domain changed from physical control to language generation, but the backbone stayed surprisingly familiar. The models are bigger, the actions are tokens, and the rewards are often preferences or answer checkers rather than environment signals. Still, the core challenge remains the same: learn a policy that does more of what we actually want, from feedback that is always incomplete, noisy, and easier to exploit than it first appears.
+Instead of merely imitating successful trajectories, the model can interact with an environment, receive feedback, and optimize its behavior based on the outcomes of those interactions.
+
+The distinction is fundamental:
+
+Supervised learning asks, "What would the expert do here?"
+
+Reinforcement learning asks, "What actions actually lead to better outcomes?"
+
+For an LLM agent, those actions might involve asking another question, retrieving a document, invoking a tool, declining to proceed, or producing a final answer.
+
+The objective is no longer simply to reproduce a reference response. It is to learn a policy that performs well across a distribution of interactions.
+
+## RLHF, DPO, and the Return of Online RL
+
+Reinforcement learning has been part of language model post-training for some time.
+
+Reinforcement Learning from Human Feedback (RLHF) introduced a framework for improving language model behavior using preference information, often by training a reward model and optimizing a policy against it.
+
+Later, techniques such as Direct Preference Optimization offered a simpler way to learn from preference comparisons without explicitly performing an online RL optimization loop.
+
+I've worked with approaches like DPO for years, but the current wave of reasoning-model post-training has renewed my interest in reinforcement learning itself.
+
+In particular, methods such as Group Relative Policy Optimization (GRPO) have made it practical to optimize language models using rewards that can be evaluated programmatically.
+
+This is often described as reinforcement learning with verifiable rewards, or RLVR.
+
+For tasks with objectively checkable outcomes, the reward signal can come from a verifier rather than a learned human-preference model.
+
+Mathematical correctness, code execution, structured-output validity, and certain constrained decision-making tasks all offer opportunities for this approach.
+
+But there is an important distinction between having a reward function and having a useful learning signal.
+
+A reward may be perfectly computable yet still fail to encourage the behavior we actually want.
+
+That became one of the central lessons of my own experiments.
+
+## My Experiments with Multi-Turn Clinical Agents
+
+Building on the earlier prescribing research, I began exploring a more interactive clinical decision-making environment.
+
+Rather than asking the model to make a single prescribing decision from a complete patient description, the environment required the agent to decide whether additional information was needed before acting.
+
+The agent could ask clarifying questions, gather information, and eventually choose an appropriate action, such as approving a request, modifying it, or escalating for clinical review.
+
+This introduced a genuine sequential decision problem.
+
+Asking a question could improve the final decision by resolving uncertainty, but it also carried a cost.
+
+Asking too few questions could lead to unsupported or unsafe decisions.
+
+Asking too many could create unnecessary friction without improving the outcome.
+
+The agent therefore needed to learn not simply which final decision was correct, but when it had gathered enough evidence to make that decision.
+
+This distinction matters because a supervised model can learn to imitate the pattern of asking questions without necessarily learning the underlying value of information.
+
+It might ask questions because similar questions appeared in training demonstrations.
+
+Or it might prematurely commit to a decision because its supervised examples disproportionately favored immediate answers.
+
+Neither behavior necessarily reflects an optimal policy.
+
+The RL environment offered a way to evaluate the consequences of those choices.
+
+## Reward Design Is Harder Than It Looks
+
+One of the biggest lessons from this work has been how sensitive reinforcement learning is to reward design.
+
+At first glance, the objective seems straightforward.
+
+Reward correct clinical decisions. Penalize unsafe decisions. Add a small cost for unnecessary questions.
+
+But the interaction between these terms can fundamentally change what the agent learns.
+
+If questions are too expensive, the model may learn to avoid gathering information, even when clarification is clinically important.
+
+If questions are effectively free, the agent may learn to ask repeatedly because information-gathering is safer than committing to a decision.
+
+If escalation receives an overly favorable reward, the model may discover that escalating everything is a reliable way to avoid penalties.
+
+In each case, the policy can improve its numerical reward while moving away from the behavior we intended.
+
+This is the familiar reward-hacking problem from classical reinforcement learning, appearing in a new setting.
+
+In my experiments, even relatively small adjustments to the cost of asking questions could materially change the incentive structure.
+
+The challenge was not simply to create a reward function that produced reasonable scores.
+
+It was to create one that preserved a meaningful distinction between good and bad policies.
+
+That required repeatedly testing the environment, evaluating baselines, and examining whether the reward actually supported the behaviors we wanted the model to discover.
+
+## Is There Enough Headroom for RL?
+
+Another lesson carried over directly from the earlier supervised prescribing project: before training an RL policy, establish whether RL has a realistic opportunity to improve performance.
+
+I found it useful to evaluate several distinct questions.
+
+First, can the environment distinguish strong behavior from weak behavior?
+
+Second, does the supervised policy already perform near the practical ceiling?
+
+Third, are there better trajectories that the current policy can plausibly discover through exploration?
+
+And fourth, does the reward function assign those better trajectories meaningfully higher rewards?
+
+This last question is particularly important.
+
+A task may have substantial room for improvement from a human perspective, but if the reward function cannot distinguish better behavior from worse behavior, the RL algorithm has little useful signal to optimize.
+
+Similarly, a well-designed reward function is not enough if the model's exploration never encounters successful trajectories.
+
+In my multi-turn experiments, I examined whether alternative action sequences could produce better outcomes than the supervised policy and whether the model could generate those alternatives with sufficient frequency.
+
+These diagnostics were often more informative than simply launching another training run.
+
+They helped separate three very different problems:
+
+1. The model does not know how to produce better behavior.
+2. The model can produce better behavior, but the current policy rarely selects it.
+3. The reward function fails to recognize better behavior.
+
+Reinforcement learning may help with the second problem, and potentially the first when exploration can discover useful strategies.
+
+It cannot reliably solve the third without improving the feedback signal.
+
+## Sparse Rewards and Credit Assignment
+
+Another connection to classical deep RL is the problem of credit assignment.
+
+Suppose a multi-turn agent asks three questions and then makes a final decision.
+
+If the final outcome is correct, which of those questions contributed to success?
+
+Was the first question essential?
+
+Did the second question resolve the relevant uncertainty?
+
+Was the third unnecessary?
+
+A single final reward does not directly answer these questions.
+
+The optimization algorithm must infer which actions contributed to the eventual outcome, often through a noisy training signal.
+
+This is difficult in conventional reinforcement learning, and it becomes increasingly challenging as language model agents execute longer trajectories involving tool calls, intermediate reasoning, and external state.
+
+The problem is especially interesting because language models operate in an enormous action space.
+
+A question is not merely one discrete action. There are countless ways to formulate it, each potentially eliciting different information from the environment.
+
+Even if the model eventually reaches a correct answer, the trajectory may have been inefficient, unnecessarily risky, or dependent on accidental information.
+
+Rewarding only the final answer can obscure these differences.
+
+This is one reason I believe evaluation of agentic systems needs to account for trajectories, not just final outputs.
+
+A successful result is important, but how the agent arrived there matters too.
+
+## Offline Learning Versus Online Experience
+
+One of the broader ideas I've been thinking about is the distinction between learning from existing data and learning through interaction.
+
+Much of modern LLM development relies on offline data: documents, demonstrations, preference comparisons, and previously generated trajectories.
+
+These datasets are powerful, but they reflect behavior that has already occurred.
+
+Online reinforcement learning offers something different.
+
+The policy can generate new trajectories, interact with an environment, observe consequences, and update itself based on those experiences.
+
+This creates the possibility of discovering strategies that were not explicitly represented in the original training data.
+
+Of course, online interaction introduces significant challenges.
+
+Environments must be reliable and sufficiently realistic. Rewards must be trustworthy. Exploration must be constrained appropriately, particularly in safety-critical domains.
+
+For my clinical experiments, the agent interacts with a simulated, controlled environment rather than autonomously making real-world medical decisions.
+
+This distinction is essential.
+
+The research objective is to understand whether learning through feedback can improve sequential decision-making, not to replace physician judgment.
+
+More broadly, I think the opportunity for LLM post-training is increasingly tied to the quality of the environments in which models learn.
+
+A powerful optimization algorithm is useful, but the environment determines which experiences the model encounters and what it can learn from them.
+
+## The Environment Is Part of the Training System
+
+This leads to one of my biggest conceptual takeaways.
+
+When building an RL system, the environment is not merely a benchmark used to evaluate the trained model.
+
+It is part of the learning process itself.
+
+In supervised learning, we spend considerable effort curating datasets, improving labels, and selecting representative examples.
+
+In reinforcement learning, comparable effort must go into designing environments, actions, observations, transitions, and rewards.
+
+An environment that is too easy may provide little useful learning signal.
+
+One that is too difficult may produce almost no successful trajectories.
+
+One with unrealistic shortcuts may encourage strategies that perform well in simulation but fail elsewhere.
+
+And one with poorly aligned rewards may actively train undesirable behavior.
+
+For language model agents, this means environment engineering may become just as important as dataset engineering has been for supervised learning.
+
+It also changes how I think about the value of proprietary data.
+
+Data is useful not only as examples to imitate, but potentially as the foundation for interactive environments in which agents can practice consequential decisions and receive meaningful feedback.
+
+That feels like an important direction for applied machine learning, particularly in enterprise settings with specialized workflows and domain-specific knowledge.
+
+## What I've Taken Away So Far
+
+My first serious exploration of modern RL-based LLM post-training has reinforced several lessons.
+
+First, supervised fine-tuning remains an exceptionally strong baseline.
+
+Before using RL, establish that there is meaningful headroom for improvement.
+
+Second, reinforcement learning becomes most interesting when the problem involves sequential decisions, uncertainty, exploration, and consequences that are difficult to capture through static demonstrations.
+
+Third, reward design is not an implementation detail.
+
+It defines the incentives the policy learns to optimize, and small changes can produce significant behavioral differences.
+
+Fourth, evaluation must examine more than final-answer accuracy.
+
+For agents, the trajectory matters: what information was gathered, which actions were selected, how uncertainty was handled, and whether the process was efficient and safe.
+
+Finally, the quality of the learning environment may be as important as the choice of optimization algorithm.
+
+These observations have also given me a new appreciation for the continuity between classical deep reinforcement learning and today's language model post-training techniques.
+
+The architectures, action spaces, and computational scale are different, but many of the foundational challenges remain the same.
+
+## Closing Thoughts
+
+I'm still early in this particular journey.
+
+Although I've worked with supervised fine-tuning and preference-based optimization for years, directly building environments, designing rewards, measuring exploration headroom, and training language models with online RL has been a different experience.
+
+It has also been one of the more intellectually rewarding directions I've explored recently.
+
+What excites me most is not simply the prospect of making models score higher on benchmarks.
+
+It's the possibility of training agents that learn more effective strategies through experience, especially in domains where decisions unfold over time and success depends on interacting intelligently with an environment.
+
+At the same time, my experiments have made me more cautious about assuming RL is always the answer.
+
+Sometimes supervised learning is sufficient.
+
+Sometimes the model needs better demonstrations.
+
+Sometimes it needs a more informative reward.
+
+And sometimes the most important work is designing an environment where meaningful learning is possible in the first place.
+
+For me, that's been the central lesson of this first foray into modern LLM reinforcement learning:
+
+**The most interesting question isn't just how to optimize the policy. It's how to create the conditions under which the policy can actually learn something new.**
