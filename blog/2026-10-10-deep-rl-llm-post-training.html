@@ -106,11 +106,9 @@
             <p>In my multi-turn experiments, I examined whether alternative action sequences could produce better outcomes than the supervised policy and whether the model could generate those alternatives with sufficient frequency.</p>
             <p>These diagnostics were often more informative than simply launching another training run.</p>
             <p>They helped separate three very different problems:</p>
-            <ol>
-                <li>The model does not know how to produce better behavior.</li>
-                <li>The model can produce better behavior, but the current policy rarely selects it.</li>
-                <li>The reward function fails to recognize better behavior.</li>
-            </ol>
+            <p>The model does not know how to produce better behavior.</p>
+            <p>The model can produce better behavior, but the current policy rarely selects it.</p>
+            <p>The reward function fails to recognize better behavior.</p>
             <p>Reinforcement learning may help with the second problem, and potentially the first when exploration can discover useful strategies.</p>
             <p>It cannot reliably solve the third without improving the feedback signal.</p>
             <h2>Sparse Rewards and Credit Assignment</h2>

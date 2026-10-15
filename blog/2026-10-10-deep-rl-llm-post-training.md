@@ -170,9 +170,11 @@ These diagnostics were often more informative than simply launching another trai
 
 They helped separate three very different problems:
 
-1. The model does not know how to produce better behavior.
-2. The model can produce better behavior, but the current policy rarely selects it.
-3. The reward function fails to recognize better behavior.
+The model does not know how to produce better behavior.
+
+The model can produce better behavior, but the current policy rarely selects it.
+
+The reward function fails to recognize better behavior.
 
 Reinforcement learning may help with the second problem, and potentially the first when exploration can discover useful strategies.
 
